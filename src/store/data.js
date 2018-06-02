@@ -99,6 +99,14 @@ class Data {
     this.fetching = false;
   }
 
+  async createOrder(data) {
+    const res = await request.post('/api/orders', data);
+
+    this.orders.push(res.data);
+
+    return res;
+  }
+
   updateSelectedTime = values => {
     const [start, end] = values;
     const [min, max] = this.availableRange;

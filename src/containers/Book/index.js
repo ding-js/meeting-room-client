@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Slider, Form, Checkbox, List, Spin } from 'antd';
+import { Slider, Form, Checkbox, List, Spin, Modal, message } from 'antd';
+import dayjs from 'dayjs';
 import { formatTime, getAvailableTimeRange } from '../../utils/time';
+import request from '../../utils/request';
 import './style.less';
 
 const FormItem = Form.Item;
 
 @inject('data')
+@inject('user')
 @observer
 class Book extends Component {
   render() {
@@ -51,30 +54,87 @@ class Book extends Component {
           </FormItem>
         </Form>
         <p>你的预订时间：{this.formatTimeRange(selectedTime)}</p>
-        <List>
-          {availableRooms.map(room => {
-            return (
-              <List.Item
-                key={room.id}
-                actions={[
-                  <a href="javascript:;" onClick={() => this.order(room)}>
-                    预订
-                  </a>
-                ]}
-              >
-                <List.Item.Meta
-                  title={<span>会议室：{room.name}</span>}
-                  description={this.renderAvailableTime(room)}
-                />
-              </List.Item>
-            );
-          })}
-        </List>
+        {availableRooms.length ? (
+          <List>
+            {availableRooms.map(room => {
+              return (
+                <List.Item
+                  key={room.id}
+                  actions={[
+                    <a href="javascript:;" onClick={() => this.order(room)}>
+                      预订
+                    </a>
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={<span>会议室：{room.name}</span>}
+                    description={this.renderAvailableTime(room)}
+                  />
+                </List.Item>
+              );
+            })}
+          </List>
+        ) : (
+          <p style={{ textAlign: 'center' }}>
+            一个都没有啦！建议修改一下预订时间~
+          </p>
+        )}
       </div>
     );
   }
 
-  order = room => {};
+  order = room => {
+    const end = this.props.data.selectedTime[1];
+    const now = dayjs();
+    const nowMin = now.hour() * 60 + now.minute();
+
+    if (end < nowMin) {
+      message.warn(
+        `检查一下真的没选错时间吗？现在已经 ${now.format('HH:mm')} 啦！`
+      );
+      return;
+    }
+
+    Modal.confirm({
+      title: '请确认预订信息',
+      content: (
+        <table>
+          <tbody>
+            <tr>
+              <th>预订人</th>
+              <td>{this.props.user.name}</td>
+            </tr>
+            <tr>
+              <th>会议室</th>
+              <td>{room.name}</td>
+            </tr>
+            <tr>
+              <th>预订时间</th>
+              <td>
+                {this.formatTimeRange(this.props.data.selectedTime.slice())}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      ),
+      okText: '确认',
+      cancelText: '取消',
+      onOk: () => {
+        const [start, end] = this.props.data.selectedTime;
+        return this.props.data
+          .createOrder({
+            room: room.id,
+            startTime: start,
+            endTime: end,
+            orderedBy: this.props.user.name,
+            scheduledDate: dayjs().format('YYYY-MM-DD')
+          })
+          .then(() => {
+            message.success('预订成功，你可以点击用户名进入预订管理查看预订');
+          });
+      }
+    });
+  };
 
   renderAvailableTime(room) {
     const { id } = room;
