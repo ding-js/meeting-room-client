@@ -107,6 +107,17 @@ class Data {
     return res;
   }
 
+  async deleteOrder(id) {
+    const res = await request.delete(`/api/orders/${id}`);
+    const index = this.orders.findIndex(order => order.id === id);
+
+    if (index > -1) {
+      this.orders.splice(index, 1);
+    }
+
+    return res;
+  }
+
   updateSelectedTime = values => {
     const [start, end] = values;
     const [min, max] = this.availableRange;

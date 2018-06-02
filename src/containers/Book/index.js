@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Slider, Form, Checkbox, List, Spin, Modal, message } from 'antd';
 import dayjs from 'dayjs';
-import { formatTime, getAvailableTimeRange } from '../../utils/time';
+import {
+  formatTime,
+  getAvailableTimeRange,
+  formatTimeRange
+} from '../../utils/time';
 import request from '../../utils/request';
 import './style.less';
 
@@ -26,7 +30,7 @@ class Book extends Component {
 
     if (fetching) {
       return (
-        <div className="book__loading">
+        <div className="loading">
           <Spin />
         </div>
       );
@@ -53,7 +57,7 @@ class Book extends Component {
             />
           </FormItem>
         </Form>
-        <p>你的预订时间：{this.formatTimeRange(selectedTime)}</p>
+        <p>你的预订时间：{formatTimeRange(selectedTime)}</p>
         {availableRooms.length ? (
           <List>
             {availableRooms.map(room => {
@@ -84,21 +88,26 @@ class Book extends Component {
   }
 
   order = room => {
-    const end = this.props.data.selectedTime[1];
+    const [start, end] = this.props.data.selectedTime;
     const now = dayjs();
     const nowMin = now.hour() * 60 + now.minute();
 
     if (end < nowMin) {
       message.warn(
-        `检查一下真的没选错时间吗？现在已经 ${now.format('HH:mm')} 啦！`
+        `检查一下没选错时间吗？现在已经 ${now.format('HH:mm')} 啦！`
       );
+      return;
+    }
+
+    if (end - start <= 0) {
+      message.warn(`预订的会议持续时间为 ${end - start} 分钟哦~`);
       return;
     }
 
     Modal.confirm({
       title: '请确认预订信息',
       content: (
-        <table>
+        <table className="book__confirm-table">
           <tbody>
             <tr>
               <th>预订人</th>
@@ -110,9 +119,7 @@ class Book extends Component {
             </tr>
             <tr>
               <th>预订时间</th>
-              <td>
-                {this.formatTimeRange(this.props.data.selectedTime.slice())}
-              </td>
+              <td>{formatTimeRange(this.props.data.selectedTime.slice())}</td>
             </tr>
           </tbody>
         </table>
@@ -120,7 +127,6 @@ class Book extends Component {
       okText: '确认',
       cancelText: '取消',
       onOk: () => {
-        const [start, end] = this.props.data.selectedTime;
         return this.props.data
           .createOrder({
             room: room.id,
@@ -159,16 +165,10 @@ class Book extends Component {
       <div>
         当前可预订时间：
         <ul>
-          {results.map(v => (
-            <li key={v.join('~')}>{this.formatTimeRange(v)}</li>
-          ))}
+          {results.map(v => <li key={v.join('~')}>{formatTimeRange(v)}</li>)}
         </ul>
       </div>
     );
-  }
-
-  formatTimeRange([start, end]) {
-    return [start, end].map(formatTime).join(' ~ ');
   }
 }
 

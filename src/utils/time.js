@@ -35,3 +35,7 @@ export const getAvailableTimeRange = (mainRange, filters) => {
 
   return results.filter(([s, e]) => s !== e).sort((x, y) => x[0] - y[0]);
 };
+
+export const formatTimeRange = ([start, end]) => {
+  return [start, end].map(formatTime).join(' ~ ');
+};

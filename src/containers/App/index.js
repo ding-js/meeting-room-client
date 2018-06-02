@@ -2,16 +2,36 @@ import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Layout } from 'antd';
 import { Link } from 'react-router-dom';
-import { Row, Col } from 'antd';
+import { Row, Col, Dropdown, Menu } from 'antd';
 import { renderRoutes } from 'react-router-config';
 import * as _ from 'lodash';
 import './style.less';
 
 const { Header, Content } = Layout;
+const MenuItem = Menu.Item;
 
 @inject('user')
 @observer
 class App extends Component {
+  state = {
+    visible: false
+  };
+
+  menu = (
+    <Menu
+      onClick={({ key }) => {
+        if (key === 'logout') {
+          this.logout();
+        }
+      }}
+    >
+      <MenuItem key="order">
+        <Link to="/order">预订管理</Link>
+      </MenuItem>
+      <MenuItem key="logout">登出</MenuItem>
+    </Menu>
+  );
+
   render() {
     const name = _.get(this.props, 'user.name');
 
@@ -23,9 +43,16 @@ class App extends Component {
           </Link>
           {name ? (
             <div className="app__info">
-              你好，<button type="button" onClick={this.logout}>
-                {name}
-              </button>
+              你好，
+              <Dropdown
+                overlay={this.menu}
+                trigger={['click']}
+                placement="bottomCenter"
+              >
+                <button type="button" onClick={this.showMenu}>
+                  {name}
+                </button>
+              </Dropdown>
             </div>
           ) : null}
         </Header>
@@ -43,7 +70,20 @@ class App extends Component {
   }
 
   logout = () => {
+    console.log('trigger');
     this.props.user.updateName(null);
+  };
+
+  showMenu = () => {
+    this.setState({
+      visible: true
+    });
+  };
+
+  hideMenu = () => {
+    this.setState({
+      visible: false
+    });
   };
 }
 
