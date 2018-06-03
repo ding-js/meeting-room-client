@@ -81,7 +81,7 @@ class Location extends Component {
                     whitespace: true
                   }
                 ]
-              })(<Input />)}
+              })(<Input autoComplete="off" />)}
             </Form.Item>
             <Form.Item label="开始时间">
               {getFieldDecorator('startTime', {
@@ -142,6 +142,7 @@ class Location extends Component {
   delete(id) {
     Modal.confirm({
       title: '确认删除选中地点吗？',
+      content: '删除地点的同时会删除该地点所有的会议室和预订',
       onOk: async () => {
         const res = await this.props.data.deleteLocation(id);
 

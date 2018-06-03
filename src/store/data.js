@@ -133,7 +133,7 @@ class Data {
 
     if (res.status === 200) {
       const index = this.locations.findIndex(loc => loc.id === id);
-      
+
       if (index > -1) {
         this.locations.splice(index, 1, res.data);
       }
@@ -143,13 +143,50 @@ class Data {
   }
 
   async deleteLocation(id) {
-    const res = request.delete(`/api/locations/${id}`);
+    const res = await request.delete(`/api/locations/${id}`);
 
     if (res.status === 200) {
       const index = this.locations.findIndex(loc => loc.id === id);
 
       if (index > -1) {
         this.locations.splice(index, 1);
+      }
+    }
+
+    return res;
+  }
+
+  async createRoom(data) {
+    const res = await request.post('/api/rooms', data);
+
+    if (res.status === 200) {
+      this.rooms.push(res.data);
+    }
+
+    return res;
+  }
+
+  async updateRoom(id, data) {
+    const res = await request.patch(`/api/rooms/${id}`, data);
+
+    if (res.status === 200) {
+      const index = this.rooms.findIndex(room => room.id === id);
+
+      if (index > -1) {
+        this.rooms.splice(index, 1, res.data);
+      }
+    }
+
+    return res;
+  }
+
+  async deleteRoom(id) {
+    const res = await request.delete(`/api/rooms/${id}`);
+
+    if (res.status === 200) {
+      const index = this.rooms.findIndex(room => room.id === id);
+      if (index > -1) {
+        this.rooms.splice(index, 1);
       }
     }
 

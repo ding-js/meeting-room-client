@@ -70,11 +70,13 @@ class Admin extends Component {
                 <Link to={`/admin/${route.name}`}>{route.label}</Link>
               </MenuItem>
             ))}
-            <MenuItem disabled>
-              <Button type="primary" onClick={this.handleCreateClick}>
-                新建{activeRoute.label}
-              </Button>
-            </MenuItem>
+            {pathname !== '/admin/order' ? (
+              <MenuItem disabled>
+                <Button type="primary" onClick={this.handleCreateClick}>
+                  新建{activeRoute.label}
+                </Button>
+              </MenuItem>
+            ) : null}
           </Menu>
         </div>
         <Switch>

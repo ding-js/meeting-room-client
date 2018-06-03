@@ -35,6 +35,7 @@ class Login extends Component {
             ]
           })(
             <Input
+              autoComplete="off"
               prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
               placeholder={nameField}
             />
@@ -52,6 +53,7 @@ class Login extends Component {
               ]
             })(
               <Input
+                autoComplete="off"
                 type="password"
                 prefix={
                   <Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />
