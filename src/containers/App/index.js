@@ -4,6 +4,7 @@ import { Layout } from 'antd';
 import { Link } from 'react-router-dom';
 import { Row, Col, Dropdown, Menu } from 'antd';
 import { renderRoutes } from 'react-router-config';
+import request from '../../utils/request';
 import * as _ from 'lodash';
 import './style.less';
 
@@ -69,8 +70,15 @@ class App extends Component {
     );
   }
 
-  logout = () => {
-    console.log('trigger');
+  logout = async () => {
+    const isAdmin = this.props.user.id;
+
+    if (isAdmin) {
+      this.props.user.updateId(null);
+
+      await request.get('/api/logout');
+    }
+
     this.props.user.updateName(null);
   };
 

@@ -38,24 +38,33 @@ class Order extends Component {
     }
   ];
   render() {
-    if (this.props.data.fetching) {
-      return (
-        <div className="loading">
-          <Spin />
-        </div>
-      );
-    }
-
     const name = this.props.user.name;
-    const userOrders = this.props.data.orders.filter(
-      v => v.ordered_by === name
-    );
+    const isAdmin = !!this.props.user.id;
+    const columns = this.columns.slice();
+    const userOrders = isAdmin
+      ? this.props.data.orders.slice()
+      : this.props.data.orders.filter(v => v.ordered_by === name);
+
+    if (isAdmin) {
+      columns.splice(2, 0, {
+        title: '预定人',
+        dataIndex: 'ordered_by',
+        key: 'ordered_by'
+      });
+    }
 
     if (!userOrders.length) {
       return <p style={{ textAlign: 'center' }}>还没有预订哦~</p>;
     }
 
-    return <Table columns={this.columns} dataSource={userOrders} rowKey="id" />;
+    return (
+      <Table
+        columns={columns}
+        dataSource={userOrders}
+        rowKey="id"
+        loading={this.props.data.fetching}
+      />
+    );
   }
 
   cancel = id => {

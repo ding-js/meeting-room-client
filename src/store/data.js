@@ -1,7 +1,7 @@
 import { observable, computed } from 'mobx';
 import request from '../utils/request';
 import { getAvailableTimeRange } from '../utils/time';
-import dayjs from 'dayjs';
+import moment from 'moment';
 import { uniq } from 'lodash';
 
 const shouldFilterStorageKey = 'patsnap_should_filter';
@@ -82,7 +82,7 @@ class Data {
     const [locations, rooms, orders] = await Promise.all([
       request.get('/api/locations'),
       request.get('/api/rooms'),
-      request.get(`/api/orders?scheduledDate=${dayjs().format('YYYY-MM-DD')}`)
+      request.get(`/api/orders?scheduledDate=${moment().format('YYYY-MM-DD')}`)
     ]).then(res => res.map(v => v.data));
 
     const defaultLoc = locations[0];
@@ -118,6 +118,44 @@ class Data {
     return res;
   }
 
+  async createLocation(data) {
+    const res = await request.post('/api/locations', data);
+
+    if (res.status === 200) {
+      this.locations.push(res.data);
+    }
+
+    return res;
+  }
+
+  async updateLocation(id, data) {
+    const res = await request.patch(`/api/locations/${id}`, data);
+
+    if (res.status === 200) {
+      const index = this.locations.findIndex(loc => loc.id === id);
+      
+      if (index > -1) {
+        this.locations.splice(index, 1, res.data);
+      }
+    }
+
+    return res;
+  }
+
+  async deleteLocation(id) {
+    const res = request.delete(`/api/locations/${id}`);
+
+    if (res.status === 200) {
+      const index = this.locations.findIndex(loc => loc.id === id);
+
+      if (index > -1) {
+        this.locations.splice(index, 1);
+      }
+    }
+
+    return res;
+  }
+
   updateSelectedTime = values => {
     const [start, end] = values;
     const [min, max] = this.availableRange;
@@ -136,7 +174,7 @@ class Data {
   };
 
   setDefaultSelectedTime = () => {
-    const now = dayjs();
+    const now = moment();
     // 当前时间向后的第一个半点/准点
     const start = Math.ceil((now.hour() * 60 + now.minute()) / 30) * 30;
     const end = start + 30;

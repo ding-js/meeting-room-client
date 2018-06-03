@@ -1,5 +1,14 @@
+import * as moment from 'moment';
+
 const addZero = num => {
   return num < 10 ? `0${num}` : num.toString();
+};
+
+export const minutes2Moment = minutes => {
+  return moment()
+    .set('hour', Math.floor(minutes / 60))
+    .set('minute', minutes % 60)
+    .startOf('minute');
 };
 
 export const formatTime = time => {

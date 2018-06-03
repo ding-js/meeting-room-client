@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Slider, Form, Checkbox, List, Spin, Modal, message } from 'antd';
-import dayjs from 'dayjs';
+import moment from 'moment';
 import {
   formatTime,
   getAvailableTimeRange,
@@ -89,7 +89,7 @@ class Book extends Component {
 
   order = room => {
     const [start, end] = this.props.data.selectedTime;
-    const now = dayjs();
+    const now = moment();
     const nowMin = now.hour() * 60 + now.minute();
 
     if (end < nowMin) {
@@ -133,7 +133,7 @@ class Book extends Component {
             startTime: start,
             endTime: end,
             orderedBy: this.props.user.name,
-            scheduledDate: dayjs().format('YYYY-MM-DD')
+            scheduledDate: moment().format('YYYY-MM-DD')
           })
           .then(() => {
             message.success('预订成功，你可以点击用户名进入预订管理查看预订');
