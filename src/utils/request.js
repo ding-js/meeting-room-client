@@ -12,9 +12,11 @@ instance.interceptors.response.use(res => {
   switch (res.status) {
     case 401:
     case 403:
-      setTimeout(() => {
-        window.location.href = '/login?from=admin';
-      }, 300);
+      if (window.location.pathname !== '/login') {
+        setTimeout(() => {
+          window.location.href = '/login?from=admin';
+        }, 300);
+      }
       break;
     case 500:
       {
