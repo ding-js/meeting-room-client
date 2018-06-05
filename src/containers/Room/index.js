@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Table, Modal, message, Divider, Form, Input, TimePicker } from 'antd';
+import { Table, Modal, message, Divider, Form, Input, Select } from 'antd';
 import * as _ from 'lodash';
 
 @inject('data')
@@ -16,6 +16,11 @@ class Room extends Component {
       title: '会议室',
       dataIndex: 'name',
       key: 'name'
+    },
+    {
+      title: '地点',
+      dataIndex: 'location',
+      key: 'location'
     },
     {
       title: '操作',
@@ -69,6 +74,23 @@ class Room extends Component {
                 ]
               })(<Input autoComplete="off" />)}
             </Form.Item>
+            <Form.Item label="地点">
+              {getFieldDecorator('location', {
+                rules: [
+                  {
+                    required: true
+                  }
+                ]
+              })(
+                <Select>
+                  {this.props.data.locations.map(loc => (
+                    <Select.Option key={loc.id} value={loc.id}>
+                      {loc.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              )}
+            </Form.Item>
           </Form>
         </Modal>
       </div>
@@ -93,6 +115,10 @@ class Room extends Component {
         name: room.name
       });
     } else {
+      this.props.form.setFieldsValue({
+        location: this.props.data.locations[0].id
+      });
+
       this.setState({
         active: null
       });
@@ -149,10 +175,11 @@ class Room extends Component {
         return;
       }
 
-      const { name } = values;
+      const { name, location } = values;
 
       const data = {
-        name
+        name,
+        location
       };
 
       (this.state.active

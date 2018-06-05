@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Slider, Form, Checkbox, List, Spin, Modal, message } from 'antd';
+import {
+  Slider,
+  Form,
+  Checkbox,
+  List,
+  Spin,
+  Modal,
+  message,
+  Select
+} from 'antd';
 import moment from 'moment';
 import {
   formatTime,
@@ -25,7 +34,10 @@ class Book extends Component {
       updateSelectedTime,
       shouldFilter,
       updateShouldFilter,
-      availableRooms
+      availableRooms,
+      locations,
+      activeLocation,
+      updateActiveLocation
     } = this.props.data;
 
     if (fetching) {
@@ -39,6 +51,22 @@ class Book extends Component {
     return (
       <div>
         <Form>
+          {locations.length > 1 ? (
+            <FormItem>
+              <Select
+                style={{ width: '214px' }}
+                value={activeLocation}
+                onChange={updateActiveLocation}
+              >
+                {locations.map(loc => (
+                  <Select.Option key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </FormItem>
+          ) : null}
+
           <FormItem>
             <Checkbox onChange={updateShouldFilter} checked={shouldFilter}>
               使用选中时间筛选可用会议室

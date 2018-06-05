@@ -2,7 +2,7 @@ import { observable, computed } from 'mobx';
 import request from '../utils/request';
 import { getAvailableTimeRange } from '../utils/time';
 import moment from 'moment';
-import { uniq } from 'lodash';
+import * as _ from 'lodash';
 
 const shouldFilterStorageKey = 'patsnap_should_filter';
 
@@ -45,7 +45,13 @@ class Data {
 
     const availableRange = this.availableRange.slice();
 
+    const activeLocation = this.activeLocation;
+
     return this.rooms.filter(room => {
+      if (room.location !== activeLocation) {
+        return false;
+      }
+
       const availableTimes = getAvailableTimeRange(
         availableRange,
         this.orders
@@ -70,7 +76,7 @@ class Data {
 
     times.push(max);
 
-    return uniq(times).reduce((marks, time) => {
+    return _.uniq(times).reduce((marks, time) => {
       marks[time] = time % 60 === 0 ? time / 60 : '';
 
       return marks;
@@ -90,9 +96,10 @@ class Data {
     Object.assign(this, {
       locations,
       rooms,
-      orders,
-      activeLocation: defaultLoc.id
+      orders
     });
+
+    this.updateActiveLocation(defaultLoc.id);
 
     this.setDefaultSelectedTime(defaultLoc.start_time, defaultLoc.end_time);
 
@@ -222,6 +229,12 @@ class Data {
   updateShouldFilter = () => {
     this.shouldFilter = !this.shouldFilter;
     localStorage.setItem(shouldFilterStorageKey, this.shouldFilter);
+  };
+
+  updateActiveLocation = id => {
+    if (!_.isNil(id)) {
+      this.activeLocation = id;
+    }
   };
 }
 
