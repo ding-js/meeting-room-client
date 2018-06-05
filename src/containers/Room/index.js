@@ -20,7 +20,8 @@ class Room extends Component {
     {
       title: '地点',
       dataIndex: 'location',
-      key: 'location'
+      key: 'location',
+      render: id => this.props.data.locations.find(loc => loc.id === id).name
     },
     {
       title: '操作',

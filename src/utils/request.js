@@ -2,10 +2,28 @@ import axios from 'axios';
 import * as _ from 'lodash';
 import { message } from 'antd';
 
+import Cookies from 'js-cookie';
+
+let csrftoken;
+
+export const updateCsrftoken = () => {
+  csrftoken = Cookies.get('csrfToken');
+};
+
+updateCsrftoken();
+
 const instance = axios.create({
   validateStatus(status) {
     return status >= 200;
   }
+});
+
+instance.interceptors.request.use(config => {
+  if (csrftoken) {
+    config.headers['x-csrf-token'] = csrftoken;
+  }
+
+  return config;
 });
 
 instance.interceptors.response.use(res => {

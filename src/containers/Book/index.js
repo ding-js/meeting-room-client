@@ -141,6 +141,18 @@ class Book extends Component {
               <th>预订人</th>
               <td>{this.props.user.name}</td>
             </tr>
+            {this.props.data.locations.length > 1 ? (
+              <tr>
+                <th>地点</th>
+                <td>
+                  {
+                    this.props.data.locations.find(
+                      loc => loc.id === this.props.data.activeLocation
+                    ).name
+                  }
+                </td>
+              </tr>
+            ) : null}
             <tr>
               <th>会议室</th>
               <td>{room.name}</td>
@@ -163,8 +175,10 @@ class Book extends Component {
             orderedBy: this.props.user.name,
             scheduledDate: moment().format('YYYY-MM-DD')
           })
-          .then(() => {
-            message.success('预订成功，你可以点击用户名进入预订管理查看预订');
+          .then(res => {
+            if (res.status === 200) {
+              message.success('预订成功，你可以点击用户名进入预订管理查看预订');
+            }
           });
       }
     });

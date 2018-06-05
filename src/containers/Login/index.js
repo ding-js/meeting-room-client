@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Form, Icon, Input, Button } from 'antd';
 import { inject, observer } from 'mobx-react';
 import { parse } from 'qs';
-import request from '../../utils/request';
+import request, { updateCsrftoken } from '../../utils/request';
 import './style.less';
 const FormItem = Form.Item;
 
@@ -91,6 +91,7 @@ class Login extends Component {
             .then(res => {
               if (res.status === 200) {
                 const { id, username } = res.data;
+                updateCsrftoken();
                 this.props.user.updateName(username);
                 this.props.user.updateId(id);
                 this.props.history.push('/admin');

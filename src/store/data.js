@@ -37,17 +37,18 @@ class Data {
 
   @computed
   get availableRooms() {
+    const activeLocation = this.activeLocation;
+    const rooms = this.rooms.filter(room => room.location === activeLocation);
+
     if (!this.shouldFilter) {
-      return this.rooms;
+      return rooms;
     }
 
     const [start, end] = this.selectedTime;
 
     const availableRange = this.availableRange.slice();
 
-    const activeLocation = this.activeLocation;
-
-    return this.rooms.filter(room => {
+    return rooms.filter(room => {
       if (room.location !== activeLocation) {
         return false;
       }
@@ -116,13 +117,20 @@ class Data {
 
   async deleteOrder(id) {
     const res = await request.delete(`/api/orders/${id}`);
+
+    if (res.status === 200) {
+      this.doDeleteOrder(id);
+    }
+
+    return res;
+  }
+
+  doDeleteOrder(id) {
     const index = this.orders.findIndex(order => order.id === id);
 
     if (index > -1) {
       this.orders.splice(index, 1);
     }
-
-    return res;
   }
 
   async createLocation(data) {
@@ -153,14 +161,21 @@ class Data {
     const res = await request.delete(`/api/locations/${id}`);
 
     if (res.status === 200) {
-      const index = this.locations.findIndex(loc => loc.id === id);
-
-      if (index > -1) {
-        this.locations.splice(index, 1);
-      }
+      this.doDeleteLocation(id);
     }
 
     return res;
+  }
+
+  doDeleteLocation(id) {
+    const index = this.locations.findIndex(loc => loc.id === id);
+    if (index > -1) {
+      this.locations.splice(index, 1);
+    }
+
+    this.rooms
+      .filter(room => room.location === id)
+      .forEach(room => this.doDeleteRoom(room.id));
   }
 
   async createRoom(data) {
@@ -191,13 +206,21 @@ class Data {
     const res = await request.delete(`/api/rooms/${id}`);
 
     if (res.status === 200) {
-      const index = this.rooms.findIndex(room => room.id === id);
-      if (index > -1) {
-        this.rooms.splice(index, 1);
-      }
+      this.doDeleteRoom(id);
     }
 
     return res;
+  }
+
+  doDeleteRoom(id) {
+    const index = this.rooms.findIndex(room => room.id === id);
+    if (index > -1) {
+      this.rooms.splice(index, 1);
+    }
+
+    this.orders
+      .filter(order => order.room === id)
+      .forEach(order => this.doDeleteOrder(order.id));
   }
 
   updateSelectedTime = values => {
