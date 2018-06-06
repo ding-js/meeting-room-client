@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as _ from 'lodash';
 import { message } from 'antd';
-
+import history from '../routes/history';
 import Cookies from 'js-cookie';
 
 let csrftoken;
@@ -31,9 +31,7 @@ instance.interceptors.response.use(res => {
     case 401:
     case 403:
       if (window.location.pathname !== '/login') {
-        setTimeout(() => {
-          window.location.href = '/login?from=admin';
-        }, 300);
+        history.push('/login?from=admin');
       }
       break;
     case 500:
