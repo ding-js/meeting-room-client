@@ -1,1 +1,1 @@
-import 'es6-shim';
+import 'core-js/shim';
